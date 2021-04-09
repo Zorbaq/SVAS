@@ -48,11 +48,16 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>D:\_KSP_DEV_1.11.0\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\_KSP_DEV_1.11.0\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
     <Reference Include="Waterfall">
       <HintPath>D:\_KSP_DEV_1.11.0\GameData\Waterfall\Plugins\Waterfall.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\ModuleAntigravity.cs" />
     <Compile Include="Modules\ModuleWaterfallFXActivator.cs" />
     <Compile Include="Modules\ModuleWaterfallFXToggler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
