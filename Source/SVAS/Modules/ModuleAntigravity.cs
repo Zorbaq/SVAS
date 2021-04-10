@@ -7,21 +7,24 @@ using UnityEngine;
 
 namespace SVAS.Modules
 {
-    public class ModuleAntigravity : PartModule
+    [KSPModule("Antigravity Generator")]
+    public class ModuleAntigravity : PartModule, IModuleInfo
     {
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Vessel Gravity Vector")]
         public Vector3d gravityVector = Vector3d.zero;
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Antigravity Generator Active")]
         public bool isActive = false;
-        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Gravity Multiplier")]
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Device Gravity Multiplier")]
         public float gravityMultiplier = 1.0f;
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Vessel Gravity Multiplier")]
+        public float vesselGravityMultiplier = 1.0f;
 
         private float baseResourceConsumption = 0.001f;
         
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Toggle Antigravity Generator")]
         public void ToggleAGModule()
         {
-            isActive = !isActive;
+            isActive = !isActive;            
         }
 
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Gravity Multiplier +0.1")]
@@ -41,25 +44,41 @@ namespace SVAS.Modules
         {
             gravityMultiplier -= 0.1f;
         }
-        
+
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            part.force_activate();
+        }
+
         public override void OnUpdate()
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
-                gravityVector = vessel.gravityForPos;
+                //Debug.Log("Is flight! (non-fixed)");
+                gravityVector = part.vessel.gravityForPos;
             }
         }
 
-        public override void OnFixedUpdate()
+        /// <summary>
+        /// Doesn't get called if the PartModule is not active. Staging activates the part but so does manual engine activation
+        /// if the part is connected to an engine.
+        /// </summary>
+        public override void OnFixedUpdate() 
         {
-            base.OnFixedUpdate();
+            //Debug.Log("On fixed!");
+            vesselGravityMultiplier = (float)part.vessel.gravityMultiplier;
+
             if (HighLogic.LoadedSceneIsFlight)
             {
+                //Debug.Log("Is flight! (fixed)");
                 if (isActive)
                 {
+                    //Debug.Log("isActive!");
                     double resourceConsumptionPerTick = (baseResourceConsumption
-                        * vessel.GetTotalMass()
-                        * Math.Abs(gravityMultiplier - 1) + baseResourceConsumption) * TimeWarp.fixedDeltaTime;
+                        * part.vessel.GetTotalMass()
+                        * Math.Abs(part.vessel.gravityMultiplier - 1) + baseResourceConsumption) * TimeWarp.fixedDeltaTime;
 
                     double requestedResource = part.RequestResource(PartResourceLibrary.Instance.GetDefinition("Graviolium").id
                         , resourceConsumptionPerTick
@@ -67,17 +86,40 @@ namespace SVAS.Modules
 
                     if (requestedResource / resourceConsumptionPerTick < 0.999)
                     {
+                        //Debug.Log("Out of resource!");
                         isActive = false;
-                        vessel.gravityMultiplier = 1.0d;
+                        part.vessel.gravityMultiplier = 1.0d;
                     }
                     else
                     {
-                        vessel.gravityMultiplier = gravityMultiplier;
+                        //Debug.Log("Applying multiplier!");
+                        part.vessel.gravityMultiplier = gravityMultiplier;
                     }
-                    
+
                 }
-                else vessel.gravityMultiplier = 1.0d;
+                else
+                {
+                    //Debug.Log("not Active!");
+                    part.vessel.gravityMultiplier = 1.0d;
+                }
             }
+        }
+
+
+
+        public string GetModuleTitle()
+        {
+            return "Antigravity Generator";
+        }
+
+        public Callback<Rect> GetDrawModulePanelCallback()
+        {
+            return null;
+        }
+
+        public string GetPrimaryField()
+        {
+            return string.Empty;
         }
     }
 }
