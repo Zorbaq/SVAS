@@ -12,7 +12,7 @@ namespace SVAS.Modules
     {
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Vessel Gravity Vector")]
         public Vector3d gravityVector = Vector3d.zero;
-        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Antigravity Generator Active")]
+        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Antigravity Generator Active")]
         public bool isActive = false;
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Device Gravity Multiplier")]
         public float gravityMultiplier = 1.0f;
